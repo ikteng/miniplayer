@@ -1,0 +1,283 @@
+.shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  flex: none;
+  background: var(--panel);
+  border-right: 1px solid #2a2a2e;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 8px;
+  transition: width 0.15s ease;
+}
+
+.sidebar.collapsed {
+  width: 52px;
+}
+
+.sidebar-toggle {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.sidebar-nav a.active {
+  background: #2a2a2e;
+  color: var(--text);
+}
+
+.content {
+  flex: 1;
+  display: block;
+  padding: 40px 48px;
+  overflow-y: auto;
+}
+
+.card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 640px;
+  gap: 28px;
+}
+
+.page-title {
+  font-size: 22px;
+  margin: 0;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 15px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2e;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #2a2a2e;
+  padding-bottom: 8px;
+}
+
+.section-title-row .section-title {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detect-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f0f10;
+  border: 1px solid #2a2a2e;
+  border-radius: 6px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.detect-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.subsection-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+.platform-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.platform-group-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.platform-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.platform-tabs button {
+  background: #0f0f10;
+  border: 1px solid #2a2a2e;
+  border-radius: 6px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.platform-tabs button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0b0b0c;
+  font-weight: 600;
+}
+
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.toggle-text .desc {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.toggle-row .toggle {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.field select,
+.field input[type="text"],
+.field input[type="number"] {
+  background: #0f0f10;
+  border: 1px solid #2a2a2e;
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.field input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px;
+  background: var(--accent);
+  color: #0b0b0c;
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.settings-page .status {
+  text-align: center;
+  margin-top: 10px;
+}

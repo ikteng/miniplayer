@@ -1,0 +1,22 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0b0c;
+  --panel: #1a1a1d;
+  --text: #f2f2f2;
+  --muted: #8a8a8f;
+  --accent: #4ade80;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+}

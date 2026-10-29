@@ -1,0 +1,24 @@
+﻿# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Build artifacts / generated
+backend/assets/
+backend/resources/static/
+backend/resources/templates/*.html.bak
+
+# Runtime / user data
+backend/settings/settings.json
+backend/settings/lyric_cache/
+
+# OS
+.DS_Store
+Thumbs.db
