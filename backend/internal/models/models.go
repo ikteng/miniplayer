@@ -219,20 +219,24 @@ type SettingsWidget struct {
 	HideEqualizer   bool   `json:"hide_equalizer"`
 	HideOnPause     bool   `json:"hide_on_pause"`
 	IsDemo          bool   `json:"is_demo"`
+	LyricStyle      string `json:"lyric_style"`
 	Player          int    `json:"player"`
 	PlayerColors    bool   `json:"player_colors"`
 	SongChangeOnly  bool   `json:"song_change_only"`
 	Theme           int    `json:"theme"`
 	TintColor       string `json:"tint_color"`
 	VisibleDuration int    `json:"visible_duration"`
+	WidgetStyle     string `json:"widget_style"`
 }
 
 func NewSettingsWidget() SettingsWidget {
 	return SettingsWidget{
 		HideDelay:       10,
+		LyricStyle:      "classic",
 		PlayerColors:    true,
 		TintColor:       "#40a4d8",
 		VisibleDuration: 5,
+		WidgetStyle:     "compact",
 	}
 }
 
