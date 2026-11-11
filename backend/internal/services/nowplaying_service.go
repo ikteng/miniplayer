@@ -31,6 +31,7 @@ type NowPlayingService struct {
 	timerPausedAt *time.Time
 
 	PrevWindowTitle          string
+	PrevSmtcTitle            string
 	PrevStatus               string
 	PrevIsPaused             bool
 	NoneOccursTime           float64
@@ -43,6 +44,7 @@ func NewNowPlayingService() *NowPlayingService {
 		Track:                     models.NewTrack(),
 		timerStart:                time.Now(),
 		PrevWindowTitle:           "",
+		PrevSmtcTitle:             "",
 		PrevStatus:                "None",
 		PrevIsPaused:              true,
 		NoneOccursTime:            0,

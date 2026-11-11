@@ -29,6 +29,10 @@ func NewAppUpdater(detector *detectors.AudioDetector, nowPlaying *NowPlayingServ
 func (a *AppUpdater) OnUpdate() {
 	status := a.detector.Status()
 	windowTitle := a.detector.WindowTitle()
+	smtcTitle := a.detector.SmtcTitle()
+	smtcArtist := a.detector.SmtcArtist()
+	smtcAlbum := a.detector.SmtcAlbum()
+	thumbnail := a.detector.Thumbnail()
 
 	n := a.nowPlaying
 	n.Lock()
@@ -43,6 +47,7 @@ func (a *AppUpdater) OnUpdate() {
 				n.Track = models.NewTrack()
 				n.ResetTimer()
 				n.PrevWindowTitle = ""
+				n.PrevSmtcTitle = ""
 				n.PrevIsPaused = true
 				n.PrevCSharpProgressSeconds = csharpProgressReset
 			}
@@ -57,20 +62,30 @@ func (a *AppUpdater) OnUpdate() {
 	isPaused := status != "Playing"
 	n.Player.IsPaused = isPaused
 
-	if n.PrevWindowTitle != windowTitle && windowTitle != "" {
+	identityChanged := (windowTitle != "" && n.PrevWindowTitle != windowTitle) ||
+		(smtcTitle != "" && smtcTitle != n.PrevSmtcTitle)
+
+	if identityChanged {
 		n.ResetTimer()
 		n.StartTimer()
 		n.PrevCSharpProgressSeconds = csharpProgressReset
 
-		title, author, hasAuthor := ParseWindowTitle(windowTitle)
-		if title != "" {
-			n.Track.Title = title
-		} else if windowTitle != "" {
-			n.Track.Title = windowTitle
+		if smtcTitle != "" {
+			n.Track.Title = smtcTitle
+			n.Track.Author = smtcArtist
+			n.Track.Album = smtcAlbum
+		} else {
+			title, author, hasAuthor := ParseWindowTitle(windowTitle)
+			if title != "" {
+				n.Track.Title = title
+			} else if windowTitle != "" {
+				n.Track.Title = windowTitle
+			}
+			if hasAuthor && author != "" {
+				n.Track.Author = author
+			}
 		}
-		if hasAuthor && author != "" {
-			n.Track.Author = author
-		}
+		n.Track.Cover = thumbnail
 		if n.Track.Duration <= 0 {
 			n.Track.Duration = 300
 			n.Track.DurationHuman = "5:00"
@@ -81,6 +96,17 @@ func (a *AppUpdater) OnUpdate() {
 			go a.output.OutputAsync(trackSnapshot)
 		}
 	} else {
+		if thumbnail != n.Track.Cover {
+			n.Track.Cover = thumbnail
+		}
+		if smtcTitle != "" {
+			if smtcArtist != "" && smtcArtist != n.Track.Author {
+				n.Track.Author = smtcArtist
+			}
+			if smtcAlbum != "" && smtcAlbum != n.Track.Album {
+				n.Track.Album = smtcAlbum
+			}
+		}
 		if isPaused {
 			n.PauseTimer()
 		} else {
@@ -89,6 +115,7 @@ func (a *AppUpdater) OnUpdate() {
 	}
 
 	n.PrevWindowTitle = windowTitle
+	n.PrevSmtcTitle = smtcTitle
 	n.PrevStatus = status
 	n.PrevIsPaused = isPaused
 }

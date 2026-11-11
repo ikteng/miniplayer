@@ -30,6 +30,10 @@ type AudioDetector struct {
 	windowTitle   string
 	progressSec   int
 	totalSec      int
+	smtcTitle     string
+	smtcArtist    string
+	smtcAlbum     string
+	thumbnail     string
 
 	cmd    *exec.Cmd
 	cancel context.CancelFunc
@@ -56,6 +60,35 @@ func (d *AudioDetector) WindowTitle() string {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.windowTitle
+}
+
+// SmtcTitle, SmtcArtist, SmtcAlbum, and Thumbnail return real metadata
+// reported by SMTC itself (GlobalSystemMediaTransportControlsSessionMediaProperties),
+// as opposed to WindowTitle's heuristic parse of the source app's window title.
+func (d *AudioDetector) SmtcTitle() string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.smtcTitle
+}
+
+func (d *AudioDetector) SmtcArtist() string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.smtcArtist
+}
+
+func (d *AudioDetector) SmtcAlbum() string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.smtcAlbum
+}
+
+// Thumbnail returns the current track's cover art as a data: URI
+// (e.g. "data:image/png;base64,...."), or "" if none is available.
+func (d *AudioDetector) Thumbnail() string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.thumbnail
 }
 
 // Start launches GetSmtcStatus.exe and begins reading its stdout. callback
@@ -131,6 +164,10 @@ func (d *AudioDetector) handleLine(text string) {
 			d.windowTitle = ""
 			d.progressSec = -1
 			d.totalSec = -1
+			d.smtcTitle = ""
+			d.smtcArtist = ""
+			d.smtcAlbum = ""
+			d.thumbnail = ""
 		}
 		return
 	}
@@ -145,6 +182,23 @@ func (d *AudioDetector) handleLine(text string) {
 				d.totalSec = t
 			}
 		}
+		return
+	}
+
+	if strings.HasPrefix(text, "Title:") {
+		d.smtcTitle = text[len("Title:"):]
+		return
+	}
+	if strings.HasPrefix(text, "Artist:") {
+		d.smtcArtist = text[len("Artist:"):]
+		return
+	}
+	if strings.HasPrefix(text, "Album:") {
+		d.smtcAlbum = text[len("Album:"):]
+		return
+	}
+	if strings.HasPrefix(text, "Thumbnail:") {
+		d.thumbnail = text[len("Thumbnail:"):]
 		return
 	}
 

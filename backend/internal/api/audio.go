@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"miniplayer-backend/internal/detectors"
 	"miniplayer-backend/internal/models"
 )
 
@@ -33,7 +32,11 @@ func (h *AudioHandlers) setDevice(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, models.NewRespData(200, "success", nil))
 }
 
+// detectPlatform mirrors app/detectors/platform_detector.py's "winsdk not
+// available" branch: this port has no SMTC session enumeration independent
+// of the AudioDetector polling loop (see internal/detectors/audio_detector.go),
+// so there's nothing to detect here beyond that fixed response shape.
 func (h *AudioHandlers) detectPlatform(w http.ResponseWriter, r *http.Request) {
-	result := detectors.DetectPlatform()
+	result := map[string]interface{}{"platform": nil, "reason": "winsdk not available"}
 	writeJSON(w, http.StatusOK, models.NewRespData(200, "success", result))
 }
