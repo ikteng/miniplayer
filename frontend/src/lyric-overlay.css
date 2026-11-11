@@ -1,0 +1,85 @@
+.lyric-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 640px;
+  padding: 10px 20px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  color: #f2f2f2;
+}
+
+.lyric-line {
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.45;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.lyric-line.active {
+  font-size: 22px;
+  opacity: 1;
+  color: var(--tint, #40a4d8);
+  animation: lyric-line-in 0.25s ease;
+}
+
+@keyframes lyric-line-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+.lyric-overlay--bubbles {
+  align-items: flex-end;
+}
+
+.lyric-bubble {
+  max-width: 480px;
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.lyric-bubble--active {
+  background: var(--tint, #40a4d8);
+  color: #0b0b0c;
+  font-size: 16px;
+  font-weight: 700;
+  opacity: 1;
+  animation: lyric-bubble-in 0.25s ease;
+}
+
+@keyframes lyric-bubble-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+}
+
+@media (max-width: 420px) {
+  .lyric-overlay {
+    max-width: min(640px, calc(100vw - 48px));
+    padding: 8px 12px;
+  }
+
+  .lyric-line {
+    font-size: 13px;
+  }
+
+  .lyric-line.active {
+    font-size: 17px;
+  }
+
+  .lyric-bubble {
+    max-width: min(480px, calc(100vw - 48px));
+    font-size: 12px;
+  }
+
+  .lyric-bubble--active {
+    font-size: 14px;
+  }
+}
