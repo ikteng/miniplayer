@@ -10,6 +10,7 @@ backend/resources/templates/*.html.bak
 # Runtime / user data
 backend/settings/settings.json
 backend/settings/lyric_cache/
+backend/Outputs/
 
 # OS
 .DS_Store

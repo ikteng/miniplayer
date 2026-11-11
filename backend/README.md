@@ -73,7 +73,11 @@ from `backend/` to validate the whole module.
   existed in this repo) is replaced with the same inline fallback HTML used
   by `page.go`, since that Python fallback path would itself throw
   `FileNotFoundError` if ever exercised.
-- `GetMusicStatus.exe` does not detect every SMTC session (e.g. some browser
-  tab playback) — this is a characteristic of the prebuilt detector
-  executable itself, confirmed identical in both the old Python backend and
-  this Go port.
+- `GetMusicStatus.exe` is NetEase-specific: it uses UI Automation against the
+  `NeteaseMusicHelper` window class, not SMTC, so it misses browser tabs,
+  Spotify, VLC, etc. Fixed by `assets/AudioService/GetSmtcStatus/GetSmtcStatus.exe`,
+  a small self-contained .NET tool built on the real
+  `GlobalSystemMediaTransportControlsSessionManager` SMTC API that reports
+  whatever app currently holds the active media session — this is what
+  `audio_detector.go` launches now, with `GetMusicStatus.exe` kept only as a
+  fallback if the new exe is ever missing.

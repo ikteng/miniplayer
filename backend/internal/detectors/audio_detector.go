@@ -1,6 +1,9 @@
-// Package detectors mirrors backend/app/detectors: it shells out to the
-// prebuilt .NET helper GetMusicStatus.exe and parses its line-oriented
-// stdout protocol exactly like the Python AudioDetector did.
+// Package detectors shells out to GetSmtcStatus.exe, a generic detector
+// built on the Windows SMTC API (GlobalSystemMediaTransportControlsSessionManager)
+// that reports whatever app currently holds the active media session —
+// browsers, Spotify, VLC, NetEase, etc. — unlike the prebuilt
+// GetMusicStatus.exe, which only recognizes NetEase Cloud Music via UI
+// Automation. Both emit the same line-oriented stdout protocol.
 package detectors
 
 import (
@@ -55,26 +58,27 @@ func (d *AudioDetector) WindowTitle() string {
 	return d.windowTitle
 }
 
-// Start launches GetMusicStatus.exe and begins reading its stdout. callback
+// Start launches GetSmtcStatus.exe and begins reading its stdout. callback
 // is invoked after every parsed line, same as Python's await self._callback().
 func (d *AudioDetector) Start(callback func()) {
-	exePath := filepath.Join(d.assetsDir, "AudioService", "GetMusicStatus.exe")
+	audioServiceDir := filepath.Join(d.assetsDir, "AudioService")
+	exePath := filepath.Join(audioServiceDir, "GetSmtcStatus", "GetSmtcStatus.exe")
+	cmdDir := filepath.Join(audioServiceDir, "GetSmtcStatus")
 	if _, err := os.Stat(exePath); err != nil {
-		log.Printf("GetMusicStatus.exe not found at %s", exePath)
-		return
+		// Fall back to the NetEase-only detector if the generic one isn't present.
+		exePath = filepath.Join(audioServiceDir, "GetMusicStatus.exe")
+		cmdDir = audioServiceDir
+		if _, err := os.Stat(exePath); err != nil {
+			log.Printf("No audio detector executable found under %s", audioServiceDir)
+			return
+		}
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	d.cancel = cancel
 
-	cmd := exec.CommandContext(ctx, exePath,
-		"--device-id", "default",
-		"--platform", "default",
-		"--smtc", "true",
-		"--poll-interval", "1000",
-		"--splayer-next-port", "37685",
-	)
-	cmd.Dir = filepath.Join(d.assetsDir, "AudioService")
+	cmd := exec.CommandContext(ctx, exePath, "--poll-interval", "1000")
+	cmd.Dir = cmdDir
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -95,7 +99,7 @@ func (d *AudioDetector) Start(callback func()) {
 		go func() { _, _ = io.Copy(io.Discard, stderr) }()
 	}
 
-	log.Println("Started GetMusicStatus.exe")
+	log.Printf("Started %s", filepath.Base(exePath))
 	go d.readLoop(stdout, callback)
 }
 
