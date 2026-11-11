@@ -1,12 +1,4 @@
-﻿# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-.venv/
-venv/
-
-# Node
+﻿# Node
 node_modules/
 frontend/dist/
 
@@ -22,3 +14,10 @@ backend/settings/lyric_cache/
 # OS
 .DS_Store
 Thumbs.db
+
+# Go
+backend/server.exe
+backend/*.exe
+
+# Claude Code worktrees
+.claude/

@@ -7,7 +7,11 @@ for %%P in (9863 5173) do (
     )
 )
 
-start "Miniplay Backend" cmd /k "cd /d %~dp0backend && python -m uvicorn app.main:app --host 127.0.0.1 --port 9863"
+if not exist "%~dp0backend\server.exe" (
+    start "Miniplay Backend" cmd /k "cd /d %~dp0backend && go build -o server.exe ./cmd/server && server.exe"
+) else (
+    start "Miniplay Backend" cmd /k "cd /d %~dp0backend && server.exe"
+)
 
 if not exist "%~dp0frontend\node_modules" (
     start "Miniplay Frontend" cmd /k "cd /d %~dp0frontend && npm install && npx vite"

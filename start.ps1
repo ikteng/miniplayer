@@ -10,7 +10,11 @@ foreach ($port in 9863, 5173) {
     }
 }
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\backend'; python -m uvicorn app.main:app --host 127.0.0.1 --port 9863"
+if (-not (Test-Path "$root\backend\server.exe")) {
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\backend'; go build -o server.exe ./cmd/server; ./server.exe"
+} else {
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\backend'; ./server.exe"
+}
 
 Start-Sleep -Seconds 3
 
