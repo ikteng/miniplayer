@@ -30,7 +30,6 @@ func main() {
 		cfg.AssetsDir, cfg.SettingsDir, cfg.StaticDir, cfg.ServerPort)
 
 	settingsSvc := services.NewSettingsService(cfg.SettingsDir)
-	lyricSvc := services.NewLyricService(cfg.SettingsDir)
 	coverSvc := services.NewCoverService(cfg.AssetsDir)
 	outputSvc := services.NewOutputService(settingsSvc)
 	nowPlayingSvc := services.NewNowPlayingService()
@@ -53,7 +52,6 @@ func main() {
 	(&api.WidgetHandlers{StaticDir: cfg.StaticDir, Settings: settingsSvc}).Register(r)
 	(&api.QueryHandlers{NowPlaying: nowPlayingSvc, Cover: coverSvc}).Register(r)
 	(&api.SettingsHandlers{Settings: settingsSvc}).Register(r)
-	(&api.LyricHandlers{Lyric: lyricSvc}).Register(r)
 	(&api.AudioHandlers{}).Register(r)
 	(&api.SystemHandlers{}).Register(r)
 	(&api.ServerHandlers{}).Register(r)

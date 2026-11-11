@@ -18,6 +18,9 @@ Thumbs.db
 
 # Go
 backend/server.exe
+backend/miniplayer-backend.exe
+backend/miniplayer-backend.exe~
+backend/*.log
 backend/*.exe
 
 # Claude Code worktrees

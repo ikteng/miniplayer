@@ -3,6 +3,6 @@
 html, body {
   margin: 0;
   background: transparent;
-  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-family: ui-monospace, "SF Mono", Consolas, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", monospace;
   color: #f2f2f2;
 }

@@ -1,9 +1,7 @@
-// Package detectors shells out to GetSmtcStatus.exe, a generic detector
-// built on the Windows SMTC API (GlobalSystemMediaTransportControlsSessionManager)
+// Package detectors shells out to GetSmtcStatus.exe, a detector built on
+// the Windows SMTC API (GlobalSystemMediaTransportControlsSessionManager)
 // that reports whatever app currently holds the active media session —
-// browsers, Spotify, VLC, NetEase, etc. — unlike the prebuilt
-// GetMusicStatus.exe, which only recognizes NetEase Cloud Music via UI
-// Automation. Both emit the same line-oriented stdout protocol.
+// browsers, Spotify, VLC, NetEase, etc.
 package detectors
 
 import (
@@ -20,7 +18,7 @@ import (
 	"time"
 )
 
-// AudioDetector polls GetMusicStatus.exe and reports status/window-title
+// AudioDetector polls GetSmtcStatus.exe and reports status/window-title
 // changes via a callback, mirroring app/detectors/audio_detector.py.
 type AudioDetector struct {
 	assetsDir string
@@ -83,6 +81,15 @@ func (d *AudioDetector) SmtcAlbum() string {
 	return d.smtcAlbum
 }
 
+// Progress returns the real position/duration (seconds) last reported by
+// SMTC via a Progress: line, or (-1, -1) if none has been reported yet for
+// the current session.
+func (d *AudioDetector) Progress() (int, int) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.progressSec, d.totalSec
+}
+
 // Thumbnail returns the current track's cover art as a data: URI
 // (e.g. "data:image/png;base64,...."), or "" if none is available.
 func (d *AudioDetector) Thumbnail() string {
@@ -98,13 +105,8 @@ func (d *AudioDetector) Start(callback func()) {
 	exePath := filepath.Join(audioServiceDir, "GetSmtcStatus", "GetSmtcStatus.exe")
 	cmdDir := filepath.Join(audioServiceDir, "GetSmtcStatus")
 	if _, err := os.Stat(exePath); err != nil {
-		// Fall back to the NetEase-only detector if the generic one isn't present.
-		exePath = filepath.Join(audioServiceDir, "GetMusicStatus.exe")
-		cmdDir = audioServiceDir
-		if _, err := os.Stat(exePath); err != nil {
-			log.Printf("No audio detector executable found under %s", audioServiceDir)
-			return
-		}
+		log.Printf("No audio detector executable found at %s", exePath)
+		return
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -210,7 +212,7 @@ func (d *AudioDetector) handleLine(text string) {
 	d.windowTitle = newTitle
 }
 
-// Stop terminates GetMusicStatus.exe, mirroring Python's terminate-then-kill
+// Stop terminates GetSmtcStatus.exe, mirroring Python's terminate-then-kill
 // fallback with a 2s grace period.
 func (d *AudioDetector) Stop() {
 	if d.cmd == nil || d.cmd.Process == nil {

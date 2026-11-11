@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import WidgetSettings from './WidgetSettings'
-import LyricsSettings from './LyricsSettings'
 import { getAccentPair } from './coverColor.js'
 import './App.css'
 
 const NAV = [
   { id: 'widget', path: '/settings/widget', label: 'Widget', icon: 'mdi:picture-in-picture-bottom-right-outline' },
-  { id: 'lyrics', path: '/settings/lyrics', label: 'Lyrics', icon: 'mdi:music-note-outline' },
 ]
 
 export default function App() {
@@ -85,7 +83,6 @@ export default function App() {
         <div className="content-body">
           <Routes location={location}>
             <Route path="/settings/widget" element={<WidgetSettings />} />
-            <Route path="/settings/lyrics" element={<LyricsSettings />} />
             <Route path="*" element={<Navigate to="/settings/widget" replace />} />
           </Routes>
         </div>

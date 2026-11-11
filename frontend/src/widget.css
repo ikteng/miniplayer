@@ -11,7 +11,7 @@
     0 8px 28px rgba(0, 0, 0, 0.35),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset;
   backdrop-filter: blur(10px);
-  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-family: ui-monospace, "SF Mono", Consolas, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", monospace;
   color: #f2f2f2;
 }
 

@@ -66,27 +66,6 @@ type Base64Img struct {
 	Base64    string `json:"base64"`
 }
 
-// Lyric mirrors app.models.entities.Lyric.
-type Lyric struct {
-	Title              string `json:"title"`
-	Author             string `json:"author"`
-	Duration           int    `json:"duration"`
-	Lyric              string `json:"lyric"`
-	TLyric             string `json:"tlyric"`
-	YrcLyric           string `json:"yrc_lyric"`
-	YrcTLyric          string `json:"yrc_tlyric"`
-	QrcLyric           string `json:"qrc_lyric"`
-	QrcTLyric          string `json:"qrc_tlyric"`
-	Source             string `json:"source"`
-	HasLyric           bool   `json:"has_lyric"`
-	HasTranslatedLyric bool   `json:"has_translated_lyric"`
-	HasKaraokeLyric    bool   `json:"has_karaoke_lyric"`
-}
-
-func NewLyric() Lyric {
-	return Lyric{Source: "netease"}
-}
-
 // SettingsGeneral mirrors app.models.entities.SettingsGeneral.
 type SettingsGeneral struct {
 	DeviceID                string `json:"device_id"`
@@ -125,12 +104,10 @@ type SettingsLyric struct {
 	UseCustomConfig        bool   `json:"use_custom_config"`
 	ConfigFileName         string `json:"config_file_name"`
 	LyricColor             string `json:"lyric_color"`
-	LyricFontSize          int    `json:"lyric_font_size"`
 	LyricFontWeight        int    `json:"lyric_font_weight"`
 	StrokeColor            string `json:"stroke_color"`
 	StrokeSize             int    `json:"stroke_size"`
 	TranslationColor       string `json:"translation_color"`
-	TranslationFontSize    int    `json:"translation_font_size"`
 	TranslationFontWeight  int    `json:"translation_font_weight"`
 	TranslationStrokeColor string `json:"translation_stroke_color"`
 	TranslationStrokeSize  int    `json:"translation_stroke_size"`
@@ -139,32 +116,24 @@ type SettingsLyric struct {
 	AlbumCoverLyric        bool   `json:"album_cover_lyric"`
 	Animation              bool   `json:"animation"`
 	BackgroundColor        string `json:"background_color"`
-	PositionType           string `json:"position_type"`
 	TypeLyric              bool   `json:"type_lyric"`
 	KaraokeAnimation       bool   `json:"karaoke_animation"`
-	VerticalAlign          bool   `json:"vertical_align"`
 	ShowInterlude          bool   `json:"show_interlude"`
 	ShowTranslation        bool   `json:"show_translation"`
-	FullScreenLyric        bool   `json:"full_screen_lyric"`
 	EnableHover            bool   `json:"enable_hover"`
-	OffsetY                int    `json:"offset_y"`
 	LastUpdateTime         int    `json:"last_update_time"`
 }
 
 func NewSettingsLyric() SettingsLyric {
 	return SettingsLyric{
 		LyricColor:             "#f5f5f5",
-		LyricFontSize:          28,
 		LyricFontWeight:        700,
 		StrokeColor:            "#000000",
 		TranslationColor:       "#f5f5f5",
-		TranslationFontSize:    28,
 		TranslationFontWeight:  700,
 		TranslationStrokeColor: "#000000",
 		BackgroundColor:        "#4d000000",
-		PositionType:           "bottom",
 		KaraokeAnimation:       true,
-		VerticalAlign:          true,
 		ShowInterlude:          true,
 		ShowTranslation:        true,
 	}

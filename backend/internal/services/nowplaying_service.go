@@ -7,10 +7,10 @@ import (
 	"miniplayer-backend/internal/models"
 )
 
-const (
-	csharpProgressNone  = -1
-	csharpProgressReset = -2
-)
+// csharpProgressReset marks PrevCSharpProgressSeconds as "no SMTC progress
+// applied yet for the current track" (distinct from a real reported value,
+// which is always >= 0 since GetSmtcStatus.exe uses -1 for "unknown").
+const csharpProgressReset = -2
 
 // NowPlayingService mirrors app/services/nowplaying_service.py: holds the
 // current Player/Track state plus the timer bookkeeping (timer_start /
@@ -61,6 +61,14 @@ func (n *NowPlayingService) Unlock() { n.mu.Unlock() }
 
 func (n *NowPlayingService) ResetTimer() {
 	n.timerStart = time.Now()
+	n.timerPausedAt = nil
+}
+
+// SyncTimer rebases the timer so GetTimeMs() reads baselineSec right now,
+// then keeps counting up from there - used to align the seekbar with a real
+// position SMTC reported, instead of restarting it at 0.
+func (n *NowPlayingService) SyncTimer(baselineSec int) {
+	n.timerStart = time.Now().Add(-time.Duration(baselineSec) * time.Second)
 	n.timerPausedAt = nil
 }
 

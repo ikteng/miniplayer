@@ -1,8 +1,0 @@
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  background: transparent;
-  font-family: ui-monospace, "SF Mono", Consolas, monospace;
-  color: #f2f2f2;
-}

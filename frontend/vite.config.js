@@ -16,7 +16,6 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         widget: resolve(import.meta.dirname, 'widget.html'),
-        lyricOverlay: resolve(import.meta.dirname, 'lyric-overlay.html'),
       },
     },
   },

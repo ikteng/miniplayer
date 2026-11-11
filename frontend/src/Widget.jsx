@@ -80,7 +80,7 @@ export default function Widget({ onStatusChange } = {}) {
           <div className="widget-album-shade" />
           <div className="widget-album-meta">
             <div className="widget-title">{track.title || 'Unknown title'}</div>
-            <div className="widget-author">{track.author || 'Unknown artist'}</div>
+            {track.author && <div className="widget-author">{track.author}</div>}
             <div className="widget-bar">
               <div className="widget-bar-fill" style={{ width: `${progress}%` }} />
             </div>
@@ -95,8 +95,8 @@ export default function Widget({ onStatusChange } = {}) {
       <div className="widget-card widget-card--minimal" style={{ '--tint': tint }}>
         <div className="widget-minimal-text">
           <span className="widget-title">{track.title || 'Unknown title'}</span>
-          <span className="widget-minimal-sep">·</span>
-          <span className="widget-author">{track.author || 'Unknown artist'}</span>
+          {track.author && <span className="widget-minimal-sep">·</span>}
+          {track.author && <span className="widget-author">{track.author}</span>}
         </div>
         <div className="widget-bar widget-bar--minimal">
           <div className="widget-bar-fill" style={{ width: `${progress}%` }} />
@@ -112,7 +112,7 @@ export default function Widget({ onStatusChange } = {}) {
       </div>
       <div className="widget-meta">
         <div className="widget-title">{track.title || 'Unknown title'}</div>
-        <div className="widget-author">{track.author || 'Unknown artist'}</div>
+        {track.author && <div className="widget-author">{track.author}</div>}
         <div className="widget-bar">
           <div className="widget-bar-fill" style={{ width: `${progress}%` }} />
         </div>

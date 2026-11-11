@@ -33,6 +33,7 @@ func (a *AppUpdater) OnUpdate() {
 	smtcArtist := a.detector.SmtcArtist()
 	smtcAlbum := a.detector.SmtcAlbum()
 	thumbnail := a.detector.Thumbnail()
+	smtcProgressSec, smtcTotalSec := a.detector.Progress()
 
 	n := a.nowPlaying
 	n.Lock()
@@ -63,12 +64,19 @@ func (a *AppUpdater) OnUpdate() {
 	n.Player.IsPaused = isPaused
 
 	identityChanged := (windowTitle != "" && n.PrevWindowTitle != windowTitle) ||
-		(smtcTitle != "" && smtcTitle != n.PrevSmtcTitle)
+		smtcTitle != n.PrevSmtcTitle
 
 	if identityChanged {
-		n.ResetTimer()
+		// SMTC already knows the real position/duration of the new track;
+		// sync to that instead of restarting the seekbar at 0 and waiting
+		// for Go's own clock to catch up.
+		if smtcProgressSec >= 0 {
+			n.SyncTimer(smtcProgressSec)
+		} else {
+			n.ResetTimer()
+		}
 		n.StartTimer()
-		n.PrevCSharpProgressSeconds = csharpProgressReset
+		n.PrevCSharpProgressSeconds = smtcProgressSec
 
 		if smtcTitle != "" {
 			n.Track.Title = smtcTitle
@@ -78,15 +86,21 @@ func (a *AppUpdater) OnUpdate() {
 			title, author, hasAuthor := ParseWindowTitle(windowTitle)
 			if title != "" {
 				n.Track.Title = title
-			} else if windowTitle != "" {
+			} else {
 				n.Track.Title = windowTitle
 			}
-			if hasAuthor && author != "" {
+			if hasAuthor {
 				n.Track.Author = author
+			} else {
+				n.Track.Author = ""
 			}
+			n.Track.Album = ""
 		}
 		n.Track.Cover = thumbnail
-		if n.Track.Duration <= 0 {
+		if smtcTotalSec > 0 {
+			n.Track.Duration = smtcTotalSec
+			n.Track.DurationHuman = GetFormattedDuration(smtcTotalSec)
+		} else if n.Track.Duration <= 0 {
 			n.Track.Duration = 300
 			n.Track.DurationHuman = "5:00"
 		}
@@ -100,12 +114,23 @@ func (a *AppUpdater) OnUpdate() {
 			n.Track.Cover = thumbnail
 		}
 		if smtcTitle != "" {
-			if smtcArtist != "" && smtcArtist != n.Track.Author {
+			if smtcArtist != n.Track.Author {
 				n.Track.Author = smtcArtist
 			}
-			if smtcAlbum != "" && smtcAlbum != n.Track.Album {
+			if smtcAlbum != n.Track.Album {
 				n.Track.Album = smtcAlbum
 			}
+		}
+		if smtcTotalSec > 0 && smtcTotalSec != n.Track.Duration {
+			n.Track.Duration = smtcTotalSec
+			n.Track.DurationHuman = GetFormattedDuration(smtcTotalSec)
+		}
+		// Resync whenever SMTC reports a progress value we haven't already
+		// applied - catches seeks, and keeps drift from accumulating between
+		// a session's own position updates and Go's interpolated clock.
+		if smtcProgressSec >= 0 && smtcProgressSec != n.PrevCSharpProgressSeconds {
+			n.PrevCSharpProgressSeconds = smtcProgressSec
+			n.SyncTimer(smtcProgressSec)
 		}
 		if isPaused {
 			n.PauseTimer()
