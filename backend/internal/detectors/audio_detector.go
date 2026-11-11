@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -114,6 +115,9 @@ func (d *AudioDetector) Start(callback func()) {
 
 	cmd := exec.CommandContext(ctx, exePath, "--poll-interval", "1000")
 	cmd.Dir = cmdDir
+	// Without this, GetSmtcStatus.exe (a console-subsystem .NET exe) pops its
+	// own console window even though the parent Go process is -H=windowsgui.
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000} // CREATE_NO_WINDOW
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

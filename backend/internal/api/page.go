@@ -1,18 +1,18 @@
 package api
 
 import (
+	"io/fs"
 	"net/http"
-	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 )
 
-// PageHandlers mirrors app/api/page.py: serves frontend/dist/index.html for
+// PageHandlers mirrors app/api/page.py: serves the embedded index.html for
 // the root/index/page/settings routes, falling back to an inline HTML
-// string if the file is missing (matching Python's FileResponse-or-fallback
+// string if it's missing (matching Python's FileResponse-or-fallback
 // behavior without risking a panic on a missing file).
 type PageHandlers struct {
-	StaticDir string
+	Dist fs.FS
 }
 
 const fallbackIndexHTML = `<!DOCTYPE html>
@@ -29,18 +29,25 @@ func (h *PageHandlers) Register(r chi.Router) {
 }
 
 func (h *PageHandlers) index(w http.ResponseWriter, r *http.Request) {
-	indexPath := filepath.Join(h.StaticDir, "index.html")
-	if _, err := statExists(indexPath); err != nil {
+	serveEmbeddedHTML(w, h.Dist, "index.html")
+}
+
+// serveEmbeddedHTML writes the named file out of the embedded dist
+// filesystem, or the inline fallback HTML when it's missing.
+func serveEmbeddedHTML(w http.ResponseWriter, dist fs.FS, name string) {
+	data, err := fs.ReadFile(dist, name)
+	if err != nil {
 		serveFallbackHTML(w)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	http.ServeFile(w, r, indexPath)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(data)
 }
 
 // serveFallbackHTML writes the inline fallback HTML when the file is
 // missing, matching Python's fallback-to-inline-HTML behavior instead of a
-// bare 404 (http.ServeFile would otherwise 404 on a missing file).
+// bare 404.
 func serveFallbackHTML(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)

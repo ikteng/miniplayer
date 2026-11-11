@@ -132,15 +132,10 @@ export default function WidgetSettings() {
         ref={dragRef}
         className="floating-preview"
         style={{ right: pos.right, bottom: pos.bottom }}
+        onPointerDown={startDrag}
       >
-        <div className="floating-preview-handle" onPointerDown={startDrag}>
-          <Icon icon="mdi:drag" width={14} />
-          <span>Preview</span>
-        </div>
-        <div className="lyric-preview-frame">
-          <Widget key={previewKey} onStatusChange={setStatus} />
-          {STATUS_TEXT[status] && <div className="lyric-preview-placeholder">{STATUS_TEXT[status]}</div>}
-        </div>
+        <Widget key={previewKey} onStatusChange={setStatus} />
+        {STATUS_TEXT[status] && <div className="lyric-preview-placeholder">{STATUS_TEXT[status]}</div>}
       </div>
 
       <section className="settings-section">

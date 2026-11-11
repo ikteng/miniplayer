@@ -2,6 +2,13 @@
 node_modules/
 frontend/dist/
 
+# Embedded frontend copy (populated by build-exe.ps1 before `go build`)
+backend/internal/staticassets/dist/assets/
+backend/internal/staticassets/dist/widget.html
+
+# Standalone exe build output
+/dist/
+
 # Build artifacts / generated
 backend/assets/
 backend/resources/static/

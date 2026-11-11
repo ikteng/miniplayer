@@ -6,28 +6,36 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
+	"path/filepath"
 	"strconv"
-	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	webview "github.com/jchv/go-webview2"
 
 	"miniplayer-backend/internal/api"
 	"miniplayer-backend/internal/config"
 	"miniplayer-backend/internal/detectors"
 	"miniplayer-backend/internal/services"
+	"miniplayer-backend/internal/staticassets"
 	"miniplayer-backend/internal/ws"
 )
 
 func main() {
 	cfg := config.Load()
-	log.Printf("miniplayer-backend starting: assets=%s settings=%s static=%s port=%d",
-		cfg.AssetsDir, cfg.SettingsDir, cfg.StaticDir, cfg.ServerPort)
+	setupLogFile(cfg)
+	log.Printf("miniplayer-backend starting: assets=%s settings=%s port=%d",
+		cfg.AssetsDir, cfg.SettingsDir, cfg.ServerPort)
+
+	dist, err := fs.Sub(staticassets.Dist(), "dist")
+	if err != nil {
+		log.Fatalf("embedded frontend assets unavailable: %v", err)
+	}
 
 	settingsSvc := services.NewSettingsService(cfg.SettingsDir)
 	coverSvc := services.NewCoverService(cfg.AssetsDir)
@@ -47,9 +55,9 @@ func main() {
 	// explicit page/widget routes are registered before the StaticFiles
 	// mount equivalent, so they take precedence over the generic static
 	// handler for the exact paths they claim ("/", "/index", etc.).
-	(&api.PageHandlers{StaticDir: cfg.StaticDir}).Register(r)
+	(&api.PageHandlers{Dist: dist}).Register(r)
 	(&api.PublicHandlers{}).Register(r)
-	(&api.WidgetHandlers{StaticDir: cfg.StaticDir, Settings: settingsSvc}).Register(r)
+	(&api.WidgetHandlers{Dist: dist, Settings: settingsSvc}).Register(r)
 	(&api.QueryHandlers{NowPlaying: nowPlayingSvc, Cover: coverSvc}).Register(r)
 	(&api.SettingsHandlers{Settings: settingsSvc}).Register(r)
 	(&api.AudioHandlers{}).Register(r)
@@ -60,10 +68,10 @@ func main() {
 	(&api.ProfileHandlers{}).Register(r)
 	(&api.WebsocketLyricHandlers{Manager: connManager}).Register(r)
 
-	// Static file serving of frontend/dist, matching main.py's
+	// Static file serving of the embedded frontend, matching main.py's
 	// `app.mount("/static", StaticFiles(...))` (and its secondary mount at
 	// "/" which the explicit routes above already take precedence over).
-	fileServer := http.FileServer(http.Dir(cfg.StaticDir))
+	fileServer := http.FileServer(http.FS(dist))
 	r.Handle("/static/*", http.StripPrefix("/static", fileServer))
 	r.Handle("/assets/*", fileServer)
 
@@ -77,13 +85,19 @@ func main() {
 	go func() {
 		log.Printf("listening on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("server error: %v", err)
+			log.Printf("server error: %v", err)
 		}
 	}()
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-	<-stop
+	// The webview window owns the process lifetime: Run() blocks until the
+	// window is closed, which is this app's only "quit" signal (there's no
+	// console to Ctrl+C since the binary is built with -H=windowsgui).
+	w := webview.New(false)
+	defer w.Destroy()
+	w.SetTitle("MiniPlayer")
+	w.SetSize(420, 640, webview.HintNone)
+	w.Navigate("http://127.0.0.1:" + strconv.Itoa(cfg.ServerPort) + "/")
+	w.Run()
 
 	log.Println("shutting down")
 	detector.Stop()
@@ -91,6 +105,18 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(ctx)
+}
+
+// setupLogFile redirects the standard logger to a file next to
+// SettingsDir, since the binary is built with -H=windowsgui and has no
+// console to print to.
+func setupLogFile(cfg config.Settings) {
+	_ = os.MkdirAll(cfg.SettingsDir, 0o755)
+	f, err := os.OpenFile(filepath.Join(cfg.SettingsDir, "miniplayer.log"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		return
+	}
+	log.SetOutput(f)
 }
 
 // corsAllowAll mirrors main.py's CORSMiddleware(allow_origins=["*"],
